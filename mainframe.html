@@ -22,12 +22,6 @@
             padding: 10px;
             margin: 10px 0;
         }
-        .contentholder {
-            display: flex;
-            align-items: flex-start;
-            margin: 15px;
-            width: 50%;
-        }
         .pname {
             font-family: "Noto Sans KR", sans-serif;
             font-optical-sizing: auto;
@@ -46,6 +40,24 @@
         .pimage {
             width: 70px;
         }
+
+        @media screen and (max-width: 767px) {
+            .contentholder {
+                display: flex;
+                align-items: flex-start;
+                margin: 15px;
+                width: 80%;
+            }
+        }
+        /* Media query for PC screens */
+        @media screen and (min-width: 768px) {
+            .contentholder {
+                display: flex;
+                align-items: flex-start;
+                margin: 15px;
+                width: 50%;
+            }
+        }
         .pcontent {
             font-family: "Noto Sans KR", sans-serif;
             font-optical-sizing: auto;
@@ -54,7 +66,7 @@
             font-size: 15px;
             margin: 1px;
             margin-top: 10px;
-            width: 50%;
+            width: 100%;
             white-space: pre-wrap;
             word-wrap: break-word;
         }
