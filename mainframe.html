@@ -22,6 +22,10 @@
             padding: 10px;
             margin: 10px 0;
         }
+        .menubtn {
+            margin: 2px;
+            height: 30px;
+        }
         .pname {
             font-family: "Noto Sans KR", sans-serif;
             font-optical-sizing: auto;
@@ -74,25 +78,69 @@
         .groupBox button {
             margin-right: 10px;
         }
+
+        /* Styling for overlay */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        /* Styling for modal */
+        .modal {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+        }
+
+        /* Close button styling */
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #333;
+        }
     </style>
     <title>Dole Control Panel</title>
 </head>
 <body>
     <h2 class="xtitle">Dole Control Panel</h2>
-    <button type="button" onclick="getstatus()">get bot status</button>
-    <button type="button" onclick="gettimeline()">get timeline</button>
-    <button type="button" onclick="botinfo('friends')">get friends</button>
-    <button type="button" onclick="getds()">get messages</button>
-    <button type="button" onclick="getranks()">get ranking</button>
+    <button class="menubtn" type="button" onclick="getstatus()">status</button>
+    <button class="menubtn" type="button" onclick="gettimeline()">timeline</button>
+    <button class="menubtn" type="button" onclick="getnotific()">notific</button>
+    <button class="menubtn" type="button" onclick="getfriends()">friends</button>
+    <button class="menubtn" type="button" onclick="getranks()">ranking</button>
     <hr>
-    <button onclick="toggleGroupBox()">! Admin !</button>
+    <button class="menubtn" onclick="toggleGroupBox()">! Admin !</button>
     <div class="groupBox" id="passwordGroupBox" style="display: none;">
         <form id="passwordForm">
             <label for="password">pass code:</label>
             <input type="password" id="password" name="password">
             <br>
-            <button type="button" onclick="prestart()">restart bot</button>
+            <button class="menubtn" type="button" onclick="prestart()">restart bot</button>
+            <button class="menubtn" type="button" onclick="getds()">show ds</button>
         </form>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="modal">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <div class="ovrwrap" id="ovrwrapper">
+                <br>
+            </div>
+        </div>
     </div>
 
     <div class="contents" id="contentsbox">
@@ -107,6 +155,32 @@
             groupBox.style.display = (groupBox.style.display === "none" || groupBox.style.display === "") ? "block" : "none";
         }
 
+        function showprofile(contents,uid) {
+            document.getElementById('overlay').style.display = 'flex';
+            var holder = document.getElementById('ovrwrapper')
+            var pname = document.createElement('a')
+            pname.setAttribute('class',"pname")
+            pname.innerText = contents
+            holder.appendChild(pname)
+            holder.appendChild(document.createElement('hr'))
+            var profilelink = document.createElement('button')
+            profilelink.setAttribute('class','menubtn')
+            profilelink.setAttribute('onclick',"window.open('https://story.kakao.com/" +uid+ "')")
+            profilelink.innerText = 'visit profile'
+            holder.appendChild(profilelink)
+            var profilelink = document.createElement('button')
+            profilelink.setAttribute('class','menubtn')
+            profilelink.setAttribute('extra','')
+            profilelink.innerText = 'extra'
+            holder.appendChild(profilelink)
+            holder.appendChild(document.createElement('br'))
+        }
+
+        function closeModal() {
+            document.getElementById('ovrwrapper').innerHTML = ''
+            document.getElementById('overlay').style.display = 'none';
+        }
+
         function prestart() {
             var xhr = new XMLHttpRequest();
             xhr.open("GET", mserver, true);
@@ -116,7 +190,21 @@
             xhr.send();
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    console.log(xhr.responseText)
+                    alert(xhr.responseText)
+                }
+            };
+        }
+
+        function getprofile(uid) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", mserver, true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("Xauth", encodeURIComponent(document.getElementById("password").value));
+            xhr.setRequestHeader("Xcmd", 'usr#'+uid);
+            xhr.send();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    showprofile(xhr.responseText,uid)
                 }
             };
         }
@@ -145,9 +233,10 @@
                 pholder.style.marginLeft = "10px"
                 pholder.style.display = "inline-block"
 
-                var pname = document.createElement('label')
+                var pname = document.createElement('a')
                 pname.setAttribute('class',"pname")
                 pname.textContent = feeddata[i].actor.display_name
+                pname.setAttribute('onclick',"getprofile('"+feeddata[i].actor.id+"')")
                 pholder.appendChild(pname)
                 pholder.appendChild(document.createElement('br'))
 
@@ -159,6 +248,101 @@
                 var pcnt = document.createElement('pre')
                 pcnt.setAttribute('class',"pcontent")
                 pcnt.textContent = feeddata[i].content
+                pholder.appendChild(pcnt)
+
+                master.appendChild(document.createElement('hr'))
+                i++
+            }
+        }
+
+        function shownotific(notdata) {
+            document.querySelector("#contentsbox").innerHTML = ''
+            let i=0;
+            while(i<notdata.length){
+                var master = document.createElement('div')
+                master.setAttribute('class',"masterholder")
+                document.querySelector("#contentsbox").appendChild(master)
+
+                var holder = document.createElement('div')
+                holder.setAttribute('id',"fd"+i)
+                holder.setAttribute('class',"contentholder")
+                master.appendChild(holder)
+
+                var pimg = document.createElement('img')
+                pimg.setAttribute('class',"pimage")
+                pimg.setAttribute('src',feeddata[i].actor.profile_image_url)
+                holder.appendChild(pimg)
+
+                var pholder = document.createElement('div')
+                pholder.setAttribute('class',"profileholder")
+                holder.appendChild(pholder)
+                pholder.style.marginLeft = "10px"
+                pholder.style.display = "inline-block"
+
+                var pname = document.createElement('a')
+                pname.setAttribute('class',"pname")
+                pname.textContent = feeddata[i].actor.display_name
+                pname.setAttribute('onclick',"getprofile('"+feeddata[i].actor.id+"')")
+                pholder.appendChild(pname)
+                pholder.appendChild(document.createElement('br'))
+
+                var pid = document.createElement('pre')
+                pid.setAttribute('class',"pid")
+                pid.textContent = feeddata[i].actor.id+"\n"+feeddata[i].updated_at
+                pholder.appendChild(pid)
+
+                var pcnt = document.createElement('pre')
+                pcnt.setAttribute('class',"pcontent")
+                pcnt.textContent = feeddata[i].content
+                pholder.appendChild(pcnt)
+
+                master.appendChild(document.createElement('hr'))
+                i++
+            }
+        }
+
+        function showfriends(frddata) {
+            document.querySelector("#contentsbox").innerHTML = ''
+            let i=0;
+            while(i<frddata.length){
+                var master = document.createElement('div')
+                master.setAttribute('class',"masterholder")
+                document.querySelector("#contentsbox").appendChild(master)
+
+                var holder = document.createElement('div')
+                holder.setAttribute('id',"fd"+i)
+                holder.setAttribute('class',"contentholder")
+                master.appendChild(holder)
+
+                var pimg = document.createElement('img')
+                pimg.setAttribute('class',"pimage")
+                pimg.setAttribute('src',frddata[i].profile_image_url)
+                holder.appendChild(pimg)
+
+                var pholder = document.createElement('div')
+                pholder.setAttribute('class',"profileholder")
+                holder.appendChild(pholder)
+                pholder.style.marginLeft = "10px"
+                pholder.style.display = "inline-block"
+
+                var pname = document.createElement('a')
+                pname.setAttribute('class',"pname")
+                pname.textContent = frddata[i].display_name
+                pname.setAttribute('onclick',"getprofile('"+frddata[i].id+"')")
+                pholder.appendChild(pname)
+                pholder.appendChild(document.createElement('br'))
+
+                var pid = document.createElement('pre')
+                pid.setAttribute('class',"pid")
+                pid.textContent = frddata[i].id
+                pholder.appendChild(pid)
+
+                var pcnt = document.createElement('pre')
+                pcnt.setAttribute('class',"pcontent")
+                try {
+                    pcnt.textContent = frddata[i].status_objects[0].message
+                } catch (error) {
+                }
                 pholder.appendChild(pcnt)
 
                 master.appendChild(document.createElement('hr'))
@@ -181,7 +365,8 @@
 
                 var pname = document.createElement('label')
                 pname.setAttribute('class',"pname")
-                pname.textContent = dsdata[i][1]
+                pname.setAttribute('onclick',"getprofile('"+dsdata[i][1]+"')")
+                pname.textContent = "["+i+"] "+dsdata[i][1]
                 holder.appendChild(pname)
                 holder.appendChild(document.createElement('br'))
 
@@ -215,6 +400,37 @@
                 holder.appendChild(nval)
                 i++
             }
+        }
+
+        function getnotific() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", mserver, true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("Xauth", encodeURIComponent(password));
+            xhr.setRequestHeader("Xcmd", 'notific');
+            xhr.send();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    feeddata = JSON.parse(xhr.responseText);
+                    console.log(feeddata)
+                    //shownotific(feeddata)
+                }
+            };
+        }
+
+        function getfriends() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", mserver, true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("Xauth", encodeURIComponent(password));
+            xhr.setRequestHeader("Xcmd", 'friends');
+            xhr.send();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    feeddata = JSON.parse(xhr.responseText);
+                    showfriends(feeddata)
+                }
+            };
         }
 
         function gettimeline() {
