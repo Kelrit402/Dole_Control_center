@@ -26,6 +26,7 @@
             display: flex;
             align-items: flex-start;
             margin: 15px;
+            width: 50%;
         }
         .pname {
             font-family: "Noto Sans KR", sans-serif;
@@ -53,6 +54,9 @@
             font-size: 15px;
             margin: 1px;
             margin-top: 10px;
+            width: 50%;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         .groupBox button {
@@ -63,10 +67,11 @@
 </head>
 <body>
     <h2 class="xtitle">Dole Control Panel</h2>
-    <button type="button" onclick="botinfo('info')">get bot status</button>
+    <button type="button" onclick="getstatus()">get bot status</button>
     <button type="button" onclick="gettimeline()">get timeline</button>
     <button type="button" onclick="botinfo('friends')">get friends</button>
-    <button type="button" onclick="botinfo('ds')">get messages</button>
+    <button type="button" onclick="getds()">get messages</button>
+    <button type="button" onclick="getranks()">get ranking</button>
     <hr>
     <button onclick="toggleGroupBox()">! Admin !</button>
     <div class="groupBox" id="passwordGroupBox" style="display: none;">
@@ -74,7 +79,7 @@
             <label for="password">pass code:</label>
             <input type="password" id="password" name="password">
             <br>
-            <button type="button" onclick="postData()">send request</button>
+            <button type="button" onclick="prestart()">restart bot</button>
         </form>
     </div>
 
@@ -90,8 +95,18 @@
             groupBox.style.display = (groupBox.style.display === "none" || groupBox.style.display === "") ? "block" : "none";
         }
 
-        function postData() {
-            botinfo(document.getElementById("password").value)
+        function prestart() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", mserver, true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("Xauth", encodeURIComponent(document.getElementById("password").value));
+            xhr.setRequestHeader("Xcmd", 'p.restart');
+            xhr.send();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    console.log(xhr.responseText)
+                }
+            };
         }
 
         function showtimeline(feeddata) {
@@ -139,26 +154,54 @@
             }
         }
 
+        function showds(dsdata) {
+            document.querySelector("#contentsbox").innerHTML = ''
+            let i=0;
+            while(i<dsdata.length){
+                var master = document.createElement('div')
+                master.setAttribute('class',"masterholder")
+                document.querySelector("#contentsbox").appendChild(master)
+
+                var holder = document.createElement('div')
+                holder.setAttribute('id',"fd"+i)
+                holder.setAttribute('class',"contentholder")
+                master.appendChild(holder)
+
+                var pname = document.createElement('label')
+                pname.setAttribute('class',"pname")
+                pname.textContent = dsdata[i][1]
+                holder.appendChild(pname)
+                holder.appendChild(document.createElement('br'))
+
+                var pcnt = document.createElement('pre')
+                pcnt.setAttribute('class',"pcontent")
+                pcnt.textContent = dsdata[i][0]
+                holder.appendChild(pcnt)
+
+                master.appendChild(document.createElement('hr'))
+                i++
+            }
+        }
+
         function showstatus(stats) {
             document.querySelector("#contentsbox").innerHTML = ''
-            var holder = document.createElement('div')
-            holder.setAttribute('id',"fd"+i)
-            holder.setAttribute('class',"contentholder")
-            document.querySelector("#contentsbox").appendChild(holder)
             let i=0;
             var varr = Object.keys(stats)
             while(i<varr.length){
-                var nkey = document.createElement('label')
+                var holder = document.createElement('div')
+                holder.setAttribute('class',"contentholder")
+                document.querySelector("#contentsbox").appendChild(holder)
+                var nkey = document.createElement('a')
                 nkey.setAttribute("class","pname")
                 nkey.textContent = varr[i] + ' : '
 
-                var nval = document.createElement('label')
-                nval.setAttribute("class","pcontent")
+                var nval = document.createElement('a')
+                nval.setAttribute("class","pname")
                 nval.textContent = stats[varr[i]]
 
                 holder.appendChild(nkey)
                 holder.appendChild(nval)
-                holder.appendChild(document.createElement('br'))
+                i++
             }
         }
 
@@ -193,6 +236,40 @@
             };
         }
 
+        function getds() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", mserver, true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("Xauth", encodeURIComponent(password));
+            xhr.setRequestHeader("Xcmd", 'dsmsgs');
+            xhr.send();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    feeddata = JSON.parse(xhr.responseText);
+                    
+                    showds(feeddata)
+                }
+            };
+        }
+
+        function getranks() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", mserver, true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("Xauth", encodeURIComponent(password));
+            xhr.setRequestHeader("Xcmd", 'ranks');
+            xhr.send();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    document.querySelector("#contentsbox").innerHTML = ''
+                    var pcnt = document.createElement('pre')
+                    pcnt.setAttribute('class',"pcontent")
+                    pcnt.textContent = xhr.responseText
+                    document.querySelector("#contentsbox").appendChild(pcnt)
+                }
+            };
+        }
+
         function botinfo(xcmds) {
             var password = document.getElementById("password").value;
             var xhr = new XMLHttpRequest();
@@ -203,7 +280,7 @@
             xhr.send();
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    console.log(xhr.responseText);
+                    alert(xhr.responseText);
                 }
             };
         }
