@@ -213,6 +213,9 @@
             document.querySelector("#contentsbox").innerHTML = ''
             let i=0;
             while(i<feeddata.length){
+                if (feeddata[i].verb !== "post" && feeddata[i].verb !== "share") {
+                    continue;
+                }
                 var master = document.createElement('div')
                 master.setAttribute('class',"masterholder")
                 document.querySelector("#contentsbox").appendChild(master)
