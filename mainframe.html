@@ -606,7 +606,7 @@
             sendreq('dsmsgs', function (error, response) {
                 if (!error) {
                     recdata = JSON.parse(response);
-                    showtimeline(recdata)
+                    showds(recdata)
                 }
             });
         }
