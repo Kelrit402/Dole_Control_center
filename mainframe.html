@@ -621,7 +621,7 @@
         }
 
         function getranks() {
-            sendreq('dsmsgs', function (error, response) {
+            sendreq('ranks', function (error, response) {
                 if (!error) {
                     document.querySelector("#contentsbox").innerHTML = ''
                     var pcnt = document.createElement('pre')
