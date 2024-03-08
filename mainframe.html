@@ -79,7 +79,6 @@
             margin-right: 10px;
         }
 
-        /* Styling for overlay */
         .overlay {
             display: none;
             position: fixed;
@@ -93,7 +92,10 @@
             z-index: 1000;
         }
 
-        /* Styling for modal */
+        .ovrwrap {
+            margin-top: 15px;
+        }
+
         .modal {
             background-color: #fff;
             padding: 20px;
@@ -103,7 +105,6 @@
             position: relative;
         }
 
-        /* Close button styling */
         .close-button {
             position: absolute;
             top: 10px;
@@ -111,6 +112,7 @@
             cursor: pointer;
             font-size: 20px;
             color: #333;
+            margin-bottom: 5px;
         }
     </style>
     <title>Dole Control Panel</title>
@@ -131,6 +133,7 @@
             <br>
             <button class="menubtn" type="button" onclick="prestart()">restart bot</button>
             <button class="menubtn" type="button" onclick="getds()">show ds</button>
+            <button class="menubtn" type="button" onclick="filterfrd()">filter friends</button>
         </form>
     </div>
 
@@ -149,6 +152,12 @@
 
     <script>
         var mserver = "http://211.177.13.242:5000"; 
+        var sendingpkt = {
+                puid: "",
+                pkey: "",
+                pval: "",
+                padd: false
+            }
 
         function toggleGroupBox() {
             var groupBox = document.getElementById("passwordGroupBox");
@@ -170,43 +179,116 @@
             holder.appendChild(profilelink)
             var profilelink = document.createElement('button')
             profilelink.setAttribute('class','menubtn')
-            profilelink.setAttribute('extra','')
-            profilelink.innerText = 'extra'
+            profilelink.setAttribute('onclick',"editpanel('" +uid+ "')")
+            profilelink.innerText = 'status edit'
             holder.appendChild(profilelink)
+        }
+
+        function refreshlabel(){
+            ckbox = document.getElementById('addval')
+            valuestr = document.getElementById('editval')
+            prevlabel = document.getElementById('prevlabel')
+            if (ckbox.checked) {
+                sendingpkt.padd = true
+            }else{
+                sendingpkt.padd = false
+            }
+            sendingpkt.pval = valuestr.value 
+            prevlabel.textContent = sendingpkt.puid + " " + sendingpkt.pkey + " " + sendingpkt.pval + " " + sendingpkt.padd
+        }
+
+        function editpanel(uid){
+            sendingpkt.puid = uid
+
+            var holder = document.getElementById('ovrwrapper')
+            holder.innerHTML = ''
+            var namewrap = document.createElement('label');
+            namewrap.setAttribute('class','pname')
+            namewrap.textContent = uid
+            holder.appendChild(namewrap)
             holder.appendChild(document.createElement('br'))
+
+            var valuestr = document.createElement('input');
+            valuestr.type = 'text'
+            valuestr.placeholder = 'value to edit'
+            valuestr.id = 'editval'
+            holder.appendChild(valuestr)
+
+            var ckbox = document.createElement('input');
+            ckbox.type = 'checkbox';
+            ckbox.id = 'addval';
+            holder.appendChild(ckbox)
+
+            var strs = document.createElement('label');
+            strs.htmlFor = 'addval';
+            strs.textContent = 'add';
+            holder.appendChild(strs)
+
+            holder.appendChild(document.createElement('hr'))
+
+            var btn1 = document.createElement('button')
+            btn1.setAttribute('class','menubtn')
+            btn1.setAttribute('onclick',"sendingpkt.pkey='point';refreshlabel()")
+            btn1.innerText = 'point'
+
+            var btn2 = document.createElement('button')
+            btn2.setAttribute('class','menubtn')
+            btn2.setAttribute('onclick',"sendingpkt.pkey='warn';refreshlabel()")
+            btn2.innerText = 'warning'
+
+            var btn3 = document.createElement('button')
+            btn3.setAttribute('class','menubtn')
+            btn3.setAttribute('onclick',"sendingpkt.pkey='vip';refreshlabel()")
+            btn3.innerText = 'vip'
+
+            var btn4 = document.createElement('button')
+            btn4.setAttribute('class','menubtn')
+            btn4.setAttribute('onclick',"sendingpkt.pkey='bethac';refreshlabel()")
+            btn4.innerText = 'bethac'
+
+            var btn5 = document.createElement('button')
+            btn5.setAttribute('class','menubtn')
+            btn5.setAttribute('onclick',"sendingpkt.pkey='rekhac';refreshlabel()")
+            btn5.innerText = 'rekhac'
+
+            var prevlabel = document.createElement('label');
+            prevlabel.setAttribute('class',"pcontent")
+            prevlabel.setAttribute('id',"prevlabel")
+            prevlabel.textContent = ""
+
+            var btn6 = document.createElement('button')
+            btn6.setAttribute('class','menubtn')
+            btn6.setAttribute('onclick',"useredit()")
+            btn6.innerText = 'send edit data'
+
+            var btn7 = document.createElement('button')
+            btn7.setAttribute('class','menubtn')
+            btn7.setAttribute('onclick',"remfriend('"+uid+"')")
+            btn7.innerText = 'remove friend'
+
+            var btn8 = document.createElement('button')
+            btn8.setAttribute('class','menubtn')
+            btn8.setAttribute('onclick',"remdata('"+uid+"')")
+            btn8.innerText = 'remove data'
+            
+            holder.appendChild(btn1)
+            holder.appendChild(btn2)
+            holder.appendChild(document.createElement('br'))
+            holder.appendChild(btn3)
+            holder.appendChild(btn4)
+            holder.appendChild(btn5)
+            holder.appendChild(document.createElement('br'))
+            holder.appendChild(prevlabel)
+            holder.appendChild(document.createElement('br'))
+            holder.appendChild(btn6)
+            holder.appendChild(document.createElement('hr'))
+            holder.appendChild(btn7)
+            holder.appendChild(btn8)
         }
 
         function closeModal() {
             document.getElementById('ovrwrapper').innerHTML = ''
             document.getElementById('overlay').style.display = 'none';
-        }
-
-        function prestart() {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", mserver, true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Xauth", encodeURIComponent(document.getElementById("password").value));
-            xhr.setRequestHeader("Xcmd", 'p.restart');
-            xhr.send();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    alert(xhr.responseText)
-                }
-            };
-        }
-
-        function getprofile(uid) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", mserver, true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Xauth", encodeURIComponent(document.getElementById("password").value));
-            xhr.setRequestHeader("Xcmd", 'usr#'+uid);
-            xhr.send();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    showprofile(xhr.responseText,uid)
-                }
-            };
         }
 
         function showtimeline(feeddata) {
@@ -273,7 +355,7 @@
 
                 var pimg = document.createElement('img')
                 pimg.setAttribute('class',"pimage")
-                pimg.setAttribute('src',feeddata[i].actor.profile_image_url)
+                pimg.setAttribute('src',notdata[i].actor.profile_image_url)
                 holder.appendChild(pimg)
 
                 var pholder = document.createElement('div')
@@ -284,19 +366,19 @@
 
                 var pname = document.createElement('a')
                 pname.setAttribute('class',"pname")
-                pname.textContent = feeddata[i].actor.display_name
-                pname.setAttribute('onclick',"getprofile('"+feeddata[i].actor.id+"')")
+                pname.textContent = notdata[i].actor.display_name
+                pname.setAttribute('onclick',"getprofile('"+notdata[i].actor.id+"')")
                 pholder.appendChild(pname)
                 pholder.appendChild(document.createElement('br'))
 
                 var pid = document.createElement('pre')
                 pid.setAttribute('class',"pid")
-                pid.textContent = feeddata[i].actor.id+"\n"+feeddata[i].updated_at
+                pid.textContent = notdata[i].actor.id+"\n"+notdata[i].message
                 pholder.appendChild(pid)
 
                 var pcnt = document.createElement('pre')
-                pcnt.setAttribute('class',"pcontent")
-                pcnt.textContent = feeddata[i].content
+                pcnt.setAttribute('class',"content")
+                pcnt.textContent = notdata[i].thumbnail_text+"\n"+notdata[i].content
                 pholder.appendChild(pcnt)
 
                 master.appendChild(document.createElement('hr'))
@@ -405,115 +487,149 @@
             }
         }
 
-        function getnotific() {
+        function sendreq(uheader,callback){
             var xhr = new XMLHttpRequest();
             xhr.open("GET", mserver, true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Xauth", encodeURIComponent(password));
-            xhr.setRequestHeader("Xcmd", 'notific');
+            xhr.setRequestHeader("Xauth", encodeURIComponent(document.getElementById("password").value));
+            xhr.setRequestHeader("Xcmd", uheader);
             xhr.send();
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    feeddata = JSON.parse(xhr.responseText);
-                    console.log(feeddata)
-                    //shownotific(feeddata)
+                    callback(null, xhr.responseText);
+                } else {
+                    if (xhr.status != 200){
+                        callback(new Error('error : ' + xhr.status), null);
+                    }
                 }
             };
+        }
+
+        function prestart() {
+            if (confirm("restart bot?")) {
+                sendreq('p.restart', function (error, response) {
+                    if (!error) {
+                        alert(response);
+                    }else{
+                        alert(error)
+                    }
+                });
+            }
+        }
+
+        function filterfrd() {
+            if (confirm("filter friends?")) {
+                sendreq('remfriends', function (error, response) {
+                    if (!error) {
+
+                    }else{
+                        alert(error)
+                    }
+                });
+            }
+        }
+
+        function useredit() {
+            if (confirm("edit user?")) {
+                vstr = JSON.stringify(sendingpkt)
+                sendreq('set#'+vstr, function (error, response) {
+                    if (!error) {
+                        alert(response);
+                    }else{
+                        alert(error)
+                    }
+                });
+            }
+        }
+
+        function remfriend(uid) {
+            if (confirm("remove friend?")) {
+                sendreq('unfrd#'+uid, function (error, response) {
+                    if (!error) {
+                        alert(response);
+                    }else{
+                        alert(error)
+                    }
+                });
+            }
+        }
+
+        function remdata(uid) {
+            if (confirm("remove user data?")) {
+                sendreq('remdata#'+uid, function (error, response) {
+                    if (!error) {
+                        alert(response);
+                    }else{
+                        alert(error)
+                    }
+                });
+            }
+        }
+
+        function getprofile(uid) {
+            sendreq('usr#'+uid, function (error, response) {
+                if (!error) {
+                    showprofile(response,uid)
+                }
+            });
+            
+        }
+
+        function getnotific() {
+            sendreq('notific', function (error, responseText) {
+                if (!error) {
+                    recdata = JSON.parse(responseText);
+                    shownotific(recdata)
+                }
+            });
         }
 
         function getfriends() {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", mserver, true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Xauth", encodeURIComponent(password));
-            xhr.setRequestHeader("Xcmd", 'friends');
-            xhr.send();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    feeddata = JSON.parse(xhr.responseText);
-                    showfriends(feeddata)
+            sendreq('friends', function (error, responseText) {
+                if (!error) {
+                    recdata = JSON.parse(responseText);
+                    showfriends(recdata)
                 }
-            };
+            });
         }
 
         function gettimeline() {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", mserver, true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Xauth", encodeURIComponent(password));
-            xhr.setRequestHeader("Xcmd", 'timeline');
-            xhr.send();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    feeddata = JSON.parse(xhr.responseText);
-                    
-                    showtimeline(feeddata)
+            sendreq('timeline', function (error, response) {
+                if (!error) {
+                    recdata = JSON.parse(response);
+                    showtimeline(recdata)
                 }
-            };
+            });
         }
 
         function getstatus() {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", mserver, true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Xauth", encodeURIComponent(password));
-            xhr.setRequestHeader("Xcmd", 'status');
-            xhr.send();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    stdata = JSON.parse(xhr.responseText);
-                    showstatus(stdata)
+            sendreq('status', function (error, response) {
+                if (!error) {
+                    recdata = JSON.parse(response);
+                    showstatus(recdata)
                 }
-            };
+            });
         }
 
         function getds() {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", mserver, true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Xauth", encodeURIComponent(password));
-            xhr.setRequestHeader("Xcmd", 'dsmsgs');
-            xhr.send();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    feeddata = JSON.parse(xhr.responseText);
-                    
-                    showds(feeddata)
+            sendreq('dsmsgs', function (error, response) {
+                if (!error) {
+                    recdata = JSON.parse(response);
+                    showtimeline(recdata)
                 }
-            };
+            });
         }
 
         function getranks() {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", mserver, true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Xauth", encodeURIComponent(password));
-            xhr.setRequestHeader("Xcmd", 'ranks');
-            xhr.send();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
+            sendreq('dsmsgs', function (error, response) {
+                if (!error) {
                     document.querySelector("#contentsbox").innerHTML = ''
                     var pcnt = document.createElement('pre')
                     pcnt.setAttribute('class',"pcontent")
-                    pcnt.textContent = xhr.responseText
+                    pcnt.textContent = response
                     document.querySelector("#contentsbox").appendChild(pcnt)
                 }
-            };
-        }
-
-        function botinfo(xcmds) {
-            var password = document.getElementById("password").value;
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", mserver, true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Xauth", encodeURIComponent(password));
-            xhr.setRequestHeader("Xcmd", xcmds);
-            xhr.send();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    alert(xhr.responseText);
-                }
-            };
+            });
         }
     </script>
 </body>
