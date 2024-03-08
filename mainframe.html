@@ -293,8 +293,7 @@
 
         function showtimeline(feeddata) {
             document.querySelector("#contentsbox").innerHTML = ''
-            let i=0;
-            while(i<feeddata.length){
+            for (var i = 0; i < feeddata.length; i++){
                 if (feeddata[i].verb !== "post" && feeddata[i].verb !== "share") {
                     continue;
                 }
@@ -336,14 +335,12 @@
                 pholder.appendChild(pcnt)
 
                 master.appendChild(document.createElement('hr'))
-                i++
             }
         }
 
         function shownotific(notdata) {
             document.querySelector("#contentsbox").innerHTML = ''
-            let i=0;
-            while(i<notdata.length){
+            for (var i = 0; i < notdata.length; i++){
                 var master = document.createElement('div')
                 master.setAttribute('class',"masterholder")
                 document.querySelector("#contentsbox").appendChild(master)
@@ -382,14 +379,12 @@
                 pholder.appendChild(pcnt)
 
                 master.appendChild(document.createElement('hr'))
-                i++
             }
         }
 
         function showfriends(frddata) {
             document.querySelector("#contentsbox").innerHTML = ''
-            let i=0;
-            while(i<frddata.length){
+            for (var i = 0; i < frddata.length; i++){
                 var master = document.createElement('div')
                 master.setAttribute('class',"masterholder")
                 document.querySelector("#contentsbox").appendChild(master)
@@ -431,14 +426,12 @@
                 pholder.appendChild(pcnt)
 
                 master.appendChild(document.createElement('hr'))
-                i++
             }
         }
 
         function showds(dsdata) {
             document.querySelector("#contentsbox").innerHTML = ''
-            let i=0;
-            while(i<dsdata.length){
+            for (var i = 0; i < dsdata.length; i++){
                 var master = document.createElement('div')
                 master.setAttribute('class',"masterholder")
                 document.querySelector("#contentsbox").appendChild(master)
@@ -461,15 +454,13 @@
                 holder.appendChild(pcnt)
 
                 master.appendChild(document.createElement('hr'))
-                i++
             }
         }
 
         function showstatus(stats) {
             document.querySelector("#contentsbox").innerHTML = ''
-            let i=0;
             var varr = Object.keys(stats)
-            while(i<varr.length){
+            for (var i = 0; i < varr.length; i++){
                 var holder = document.createElement('div')
                 holder.setAttribute('class',"contentholder")
                 document.querySelector("#contentsbox").appendChild(holder)
@@ -483,7 +474,6 @@
 
                 holder.appendChild(nkey)
                 holder.appendChild(nval)
-                i++
             }
         }
 
@@ -597,6 +587,7 @@
             sendreq('timeline', function (error, response) {
                 if (!error) {
                     recdata = JSON.parse(response);
+                    console.log(recdata)
                     showtimeline(recdata)
                 }
             });
