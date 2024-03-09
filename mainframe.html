@@ -75,10 +75,6 @@
             word-wrap: break-word;
         }
 
-        .groupBox button {
-            margin-right: 10px;
-        }
-
         .overlay {
             display: none;
             position: fixed;
@@ -119,6 +115,8 @@
 </head>
 <body>
     <h2 class="xtitle">Dole Control Panel</h2>
+    <label class="pid">v24.03.10</label>
+    <br>
     <button class="menubtn" type="button" onclick="getstatus()">status</button>
     <button class="menubtn" type="button" onclick="gettimeline()">timeline</button>
     <button class="menubtn" type="button" onclick="getnotific()">notific</button>
@@ -132,8 +130,9 @@
             <input type="password" id="password" name="password">
             <br>
             <button class="menubtn" type="button" onclick="prestart()">restart bot</button>
-            <button class="menubtn" type="button" onclick="getds()">show ds</button>
             <button class="menubtn" type="button" onclick="filterfrd()">filter friends</button>
+            <button class="menubtn" type="button" onclick="getds()">show ds</button>
+            <button class="menubtn" type="button" onclick="getlogs()">show logs</button>
         </form>
     </div>
 
@@ -162,6 +161,20 @@
         function toggleGroupBox() {
             var groupBox = document.getElementById("passwordGroupBox");
             groupBox.style.display = (groupBox.style.display === "none" || groupBox.style.display === "") ? "block" : "none";
+        }
+
+        function tctotime(tc) {
+            const now = new Date(tc*1000);
+
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            const formatNumber = (num) => (num < 10 ? '0' : '') + num;
+            const formattedTimestamp = `${formatNumber(month)}/${formatNumber(day)} - ${formatNumber(hours)}:${formatNumber(minutes)}:${formatNumber(seconds)}`;
+            return formattedTimestamp;
         }
 
         function showprofile(contents,uid) {
@@ -457,6 +470,51 @@
             }
         }
 
+        function showlogs(strdata) {
+            document.querySelector("#contentsbox").innerHTML = ''
+            var logdata = JSON.parse(strdata)
+            for (var i = 0; i < logdata.length; i++){
+                var master = document.createElement('div')
+                master.setAttribute('class',"masterholder")
+                document.querySelector("#contentsbox").appendChild(master)
+
+                var holder = document.createElement('div')
+                holder.setAttribute('id',"fd"+i)
+                holder.setAttribute('class',"contentholder")
+                master.appendChild(holder)
+
+                var namer = document.createElement('div')
+                namer.setAttribute('class',"pnamer")
+                holder.appendChild(namer)
+                namer.style.display = "inline-block"
+
+                var pholder = document.createElement('div')
+                pholder.setAttribute('class',"profileholder")
+                holder.appendChild(pholder)
+                pholder.style.marginLeft = "10px"
+                pholder.style.display = "inline-block"
+
+                //uid,cnt_input,cnt_output,timecode,fid
+                var pname = document.createElement('pre')
+                pname.setAttribute('class',"pname")
+                pname.setAttribute('onclick',"getprofile('"+logdata[i][0]+"')")
+                pname.textContent = "["+i+"]\n"+logdata[i][0]
+                namer.appendChild(pname)
+
+                var pid = document.createElement('pre')
+                pid.setAttribute('class',"pid")
+                pid.textContent = tctotime(logdata[i][3])+"\n"+logdata[i][4]
+                pholder.appendChild(pid)
+
+                var pcnt = document.createElement('pre')
+                pcnt.setAttribute('class',"pcontent")
+                pcnt.textContent = logdata[i][1]+'\n-----------------------\n'+logdata[i][2]
+                pholder.appendChild(pcnt)
+
+                master.appendChild(document.createElement('hr'))
+            }
+        }
+
         function showstatus(stats) {
             document.querySelector("#contentsbox").innerHTML = ''
             var varr = Object.keys(stats)
@@ -505,6 +563,16 @@
                     }
                 });
             }
+        }
+
+        function getlogs() {
+            sendreq('cmtlogs', function (error, response) {
+                if (!error) {
+                    showlogs(response);
+                }else{
+                    alert(error)
+                }
+            });
         }
 
         function filterfrd() {
@@ -587,7 +655,6 @@
             sendreq('timeline', function (error, response) {
                 if (!error) {
                     recdata = JSON.parse(response);
-                    console.log(recdata)
                     showtimeline(recdata)
                 }
             });
