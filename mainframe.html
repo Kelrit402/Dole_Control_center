@@ -551,7 +551,7 @@
             xhr.open("GET", mserver, true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.setRequestHeader("Xauth", encodeURIComponent(document.getElementById("password").value));
-            xhr.setRequestHeader("Xcmd", uheader);
+            xhr.setRequestHeader("Xcmd", encodeURI(uheader));
             xhr.send();
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
