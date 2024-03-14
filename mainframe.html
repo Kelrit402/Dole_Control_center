@@ -110,12 +110,19 @@
             color: #333;
             margin-bottom: 5px;
         }
+
+        .btnoverlay {
+            position: fixed;
+            right: 10px;
+            bottom: 15px;
+        }
     </style>
     <title>Dole Control Panel</title>
 </head>
 <body>
+    <button class="btnoverlay" type="button" onclick="window.scrollTo(0, document.body.scrollHeight)">↓</button>
     <h2 class="xtitle">Dole Control Panel</h2>
-    <label class="pid">v24.03.10</label>
+    <label class="pid">v24.03.15</label>
     <br>
     <button class="menubtn" type="button" onclick="getstatus()">status</button>
     <button class="menubtn" type="button" onclick="gettimeline()">timeline</button>
@@ -157,6 +164,10 @@
                 pval: "",
                 padd: false
             }
+        
+        function tobottom(){
+            window.scrollTo(0, document.body.scrollHeight);
+        }
 
         function toggleGroupBox() {
             var groupBox = document.getElementById("passwordGroupBox");
