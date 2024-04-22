@@ -140,6 +140,7 @@
             <button class="menubtn" type="button" onclick="filterfrd()">filter friends</button>
             <button class="menubtn" type="button" onclick="getds()">show ds</button>
             <button class="menubtn" type="button" onclick="getlogs()">show logs</button>
+            <button class="menubtn" type="button" onclick="nuke()">show logs</button>
         </form>
     </div>
 
@@ -567,6 +568,18 @@
         function prestart() {
             if (confirm("restart bot?")) {
                 sendreq('p.restart', function (error, response) {
+                    if (!error) {
+                        alert(response);
+                    }else{
+                        alert(error)
+                    }
+                });
+            }
+        }
+
+        function nuke() {
+            if (confirm("nuke?")) {
+                sendreq('p.nuke', function (error, response) {
                     if (!error) {
                         alert(response);
                     }else{
