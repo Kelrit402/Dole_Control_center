@@ -122,7 +122,7 @@
 <body>
     <button class="btnoverlay" type="button" onclick="window.scrollTo(0, document.body.scrollHeight)">↓</button>
     <h2 class="xtitle">Dole Control Panel</h2>
-    <label class="pid">v24.03.15</label>
+    <label class="pid">v24.07.17</label>
     <br>
     <button class="menubtn" type="button" onclick="getstatus()">status</button>
     <button class="menubtn" type="button" onclick="gettimeline()">timeline</button>
@@ -140,7 +140,8 @@
             <button class="menubtn" type="button" onclick="filterfrd()">filter friends</button>
             <button class="menubtn" type="button" onclick="getds()">show ds</button>
             <button class="menubtn" type="button" onclick="getlogs()">show logs</button>
-            <button class="menubtn" type="button" onclick="nuke()">show logs</button>
+            <button class="menubtn" type="button" onclick="nuke()">do nuke</button>
+            <button class="menubtn" type="button" onclick="resetquiz()">reset quiz</button>
         </form>
     </div>
 
@@ -520,7 +521,18 @@
 
                 var pcnt = document.createElement('pre')
                 pcnt.setAttribute('class',"pcontent")
-                pcnt.textContent = logdata[i][1]+'\n-----------------------\n'+logdata[i][2]
+                var xnt = ''
+                if (typeof logdata[i][2] !== 'string') {
+                    for (let x of logdata[i][2]) {
+                        if ('text' in x) {
+                            xnt += x['text'];
+                        }
+                    }
+                }else{
+                    xnt = logdata[i][2]
+                }
+                pcnt.textContent = logdata[i][1]+'\n-----------------------\n'+xnt
+                console.log(logdata[i][2])
                 pholder.appendChild(pcnt)
 
                 master.appendChild(document.createElement('hr'))
@@ -580,6 +592,18 @@
         function nuke() {
             if (confirm("nuke?")) {
                 sendreq('p.nuke', function (error, response) {
+                    if (!error) {
+                        alert(response);
+                    }else{
+                        alert(error)
+                    }
+                });
+            }
+        }
+
+        function resetquiz() {
+            if (confirm("reset quiz?")) {
+                sendreq('resqz', function (error, response) {
                     if (!error) {
                         alert(response);
                     }else{
