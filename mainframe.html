@@ -122,7 +122,7 @@
 <body>
     <button class="btnoverlay" type="button" onclick="window.scrollTo(0, document.body.scrollHeight)">↓</button>
     <h2 class="xtitle">Dole Control Panel</h2>
-    <label class="pid">v24.07.17</label>
+    <label class="pid">v24.07.18</label>
     <br>
     <button class="menubtn" type="button" onclick="getstatus()">status</button>
     <button class="menubtn" type="button" onclick="gettimeline()">timeline</button>
@@ -142,6 +142,7 @@
             <button class="menubtn" type="button" onclick="getlogs()">show logs</button>
             <button class="menubtn" type="button" onclick="nuke()">do nuke</button>
             <button class="menubtn" type="button" onclick="resetquiz()">reset quiz</button>
+            <button class="menubtn" type="button" onclick="noticelast()">notice at last</button>
         </form>
     </div>
 
@@ -604,6 +605,18 @@
         function resetquiz() {
             if (confirm("reset quiz?")) {
                 sendreq('resqz', function (error, response) {
+                    if (!error) {
+                        alert(response);
+                    }else{
+                        alert(error)
+                    }
+                });
+            }
+        }
+
+        function noticelast() {
+            if (confirm("notice?")) {
+                sendreq('notif', function (error, response) {
                     if (!error) {
                         alert(response);
                     }else{
