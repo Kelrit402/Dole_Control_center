@@ -143,6 +143,7 @@
             <button class="menubtn" type="button" onclick="nuke()">do nuke</button>
             <button class="menubtn" type="button" onclick="resetquiz()">reset quiz</button>
             <button class="menubtn" type="button" onclick="noticelast()">notice at last</button>
+            <button class="menubtn" type="button" onclick="showqzz()">show quiz</button>
         </form>
     </div>
 
@@ -747,6 +748,50 @@
                     pcnt.setAttribute('class',"pcontent")
                     pcnt.textContent = response
                     document.querySelector("#contentsbox").appendChild(pcnt)
+                }
+            });
+        }
+
+        function showqzz() {
+            sendreq('shqzz', function (error, response) {
+                if (!error) {
+                    document.querySelector("#contentsbox").innerHTML = ''
+                    let contentsBox = document.querySelector("#contentsbox");
+
+                    data = JSON.parse(response)
+
+                    let imageContainer = document.createElement("div");
+                    imageContainer.style.display = "flex";
+                    imageContainer.style.gap = "10px";
+                    
+                    let imgElement1 = document.createElement("img");
+                    imgElement1.src = "data:image/jpeg;base64," + data.qzimage;
+                    imgElement1.style.width = "50%";
+                    imgElement1.style.height = "auto";
+                    imgElement1.style.objectFit = "cover";
+                    imageContainer.appendChild(imgElement1);
+
+                    let imgElement2 = document.createElement("img");
+                    imgElement2.src = "data:image/jpeg;base64," + data.baseimage;
+                    imgElement2.style.width = "50%";
+                    imgElement2.style.height = "auto";
+                    imgElement2.style.objectFit = "cover";
+                    imageContainer.appendChild(imgElement2);
+                    
+                    let textContainer = document.createElement("div");
+                    textContainer.style.display = "flex";
+                    textContainer.style.flexDirection = "column";
+                    textContainer.style.marginTop = "10px";
+                    
+                    let texts = [data.answer, data.tries];
+                    texts.forEach(text => {
+                        let pElement = document.createElement("p");
+                        pElement.textContent = text;
+                        textContainer.appendChild(pElement);
+                    });
+                    
+                    contentsBox.appendChild(imageContainer);
+                    contentsBox.appendChild(textContainer);
                 }
             });
         }
